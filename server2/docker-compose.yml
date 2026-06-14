@@ -1,0 +1,22 @@
+services:
+  activemq:
+    image: apache/activemq-classic:5.18.3
+    container_name: s2-activemq
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      ACTIVEMQ_ADMIN_LOGIN: admin
+      ACTIVEMQ_ADMIN_PASSWORD: admin
+    volumes:
+      - activemq-data:/opt/apache-activemq/data
+      - ./activemq-config/activemq.xml:/opt/apache-activemq/conf/activemq.xml:ro
+      - ./activemq-config/jolokia-access.xml:/opt/apache-activemq/conf/jolokia-access.xml:ro
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/127.0.0.1/61616' || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  activemq-data:
+

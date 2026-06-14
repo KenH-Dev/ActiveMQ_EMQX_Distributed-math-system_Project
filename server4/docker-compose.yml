@@ -1,0 +1,10 @@
+services:
+  worker:
+    build: ./worker
+    container_name: s4-worker-a
+    restart: unless-stopped
+    environment:
+      WORKER_ID: "a"
+      MQTT_HOST: "192.168.56.3"
+      MQTT_PORT: "1883"
+

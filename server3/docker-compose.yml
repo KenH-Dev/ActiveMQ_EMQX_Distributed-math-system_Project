@@ -1,0 +1,171 @@
+networks:
+  s3net:
+    driver: bridge
+
+volumes:
+  emqx-data:
+  emqx-log:
+  postgres-data:
+  kafka-data:
+  es-data:
+
+services:
+  s3-emqx:
+    image: emqx/emqx:5.5.0
+    container_name: s3-emqx
+    restart: unless-stopped
+    networks:
+      - s3net
+    ports:
+      - "1883:1883"
+      - "18083:18083"
+    environment:
+      EMQX_DASHBOARD__DEFAULT_PASSWORD: public
+    volumes:
+      - emqx-data:/opt/emqx/data
+      - emqx-log:/opt/emqx/log
+
+  s3-dispatcher:
+    build: ./dispatcher
+    container_name: s3-dispatcher
+    restart: unless-stopped
+    depends_on:
+      - s3-emqx
+    networks:
+      - s3net
+    environment:
+      AMQ_HOST: "192.168.56.2"
+      AMQ_PORT: "61613"
+      AMQ_USER: admin
+      AMQ_PASSWORD: admin
+      MQTT_HOST: s3-emqx
+      MQTT_PORT: "1883"
+      WORKER_A_TOPIC: worker/a/tasks
+      WORKER_B_TOPIC: worker/b/tasks
+      REQUEST_QUEUE: math.requests
+      WORKER_WEIGHTS: "a:1,b:1"
+
+  s3-mqtt-bridge:
+    build: ./bridge
+    container_name: s3-mqtt-bridge
+    restart: unless-stopped
+    depends_on:
+      - s3-emqx
+    networks:
+      - s3net
+    environment:
+      AMQ_HOST: "192.168.56.2"
+      AMQ_PORT: "61613"
+      AMQ_USER: admin
+      AMQ_PASSWORD: admin
+      MQTT_HOST: s3-emqx
+      MQTT_PORT: "1883"
+      RESULT_MQTT_TOPIC: "worker/+/results"
+      RESULT_AMQ_QUEUE: math.results
+
+  s3-postgres:
+    image: postgres:16-alpine
+    container_name: s3-postgres
+    restart: unless-stopped
+    networks:
+      - s3net
+    environment:
+      POSTGRES_DB: mathdb
+      POSTGRES_USER: mathuser
+      POSTGRES_PASSWORD: mathpass
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  s3-db-writer:
+    build: ./db-writer
+    container_name: s3-db-writer
+    restart: unless-stopped
+    depends_on:
+      - s3-emqx
+      - s3-postgres
+    networks:
+      - s3net
+    environment:
+      MQTT_HOST: s3-emqx
+      MQTT_PORT: "1883"
+      RESULT_MQTT_TOPIC: "worker/+/results"
+      DB_HOST: s3-postgres
+      DB_PORT: "5432"
+      DB_NAME: mathdb
+      DB_USER: mathuser
+      DB_PASSWORD: mathpass
+
+  s3-kafka:
+    image: apache/kafka:3.7.0
+    container_name: s3-kafka
+    restart: unless-stopped
+    networks:
+      - s3net
+    environment:
+      KAFKA_NODE_ID: "1"
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://s3-kafka:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@s3-kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+      KAFKA_HEAP_OPTS: "-Xmx512m -Xms512m"
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+
+  s3-kafka-producer:
+    build: ./kafka-producer
+    container_name: s3-kafka-producer
+    restart: unless-stopped
+    depends_on:
+      - s3-emqx
+      - s3-kafka
+    networks:
+      - s3net
+    environment:
+      MQTT_HOST: s3-emqx
+      MQTT_PORT: "1883"
+      RESULT_MQTT_TOPIC: "worker/+/results"
+      KAFKA_BOOTSTRAP: "s3-kafka:9092"
+      KAFKA_TOPIC: "math.results"
+
+  s3-elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.4
+    container_name: s3-elasticsearch
+    restart: unless-stopped
+    networks:
+      - s3net
+    ports:
+      - "9200:9200"
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+
+  s3-kibana:
+    image: docker.elastic.co/kibana/kibana:8.13.4
+    container_name: s3-kibana
+    restart: unless-stopped
+    networks:
+      - s3net
+    ports:
+      - "5601:5601"
+    environment:
+      ELASTICSEARCH_HOSTS: '["http://s3-elasticsearch:9200"]'
+
+  s3-logstash:
+    image: docker.elastic.co/logstash/logstash:8.13.4
+    container_name: s3-logstash
+    restart: unless-stopped
+    networks:
+      - s3net
+    depends_on:
+      - s3-kafka
+      - s3-elasticsearch
+    volumes:
+      - ./logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+    environment:
+      LS_JAVA_OPTS: "-Xms512m -Xmx512m"
