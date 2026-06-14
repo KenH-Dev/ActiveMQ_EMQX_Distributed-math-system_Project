@@ -105,10 +105,22 @@
   .ss-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
   .ss-grid-1 { display: grid; grid-template-columns: 1fr; gap: 1rem; }
   .ss-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-  .ss-card img { width: 100%; display: block; }
+  .ss-card img { width: 100%; display: block; cursor: zoom-in; transition: opacity 0.15s; }
+  .ss-card img:hover { opacity: 0.85; }
   .ss-caption { padding: 10px 14px; border-top: 1px solid var(--border); }
   .ss-caption-title { font-family: var(--mono); font-size: 12px; color: var(--text); font-weight: 700; }
   .ss-caption-desc { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* Terminal screenshots — larger and side-scrollable */
+  .ss-terminal img { min-height: 420px; object-fit: cover; object-position: top left; }
+
+  /* Lightbox */
+  .lightbox { display: none; position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,0.92); align-items: center; justify-content: center; padding: 2rem; }
+  .lightbox.open { display: flex; }
+  .lightbox img { max-width: 100%; max-height: 90vh; border-radius: 8px; border: 1px solid var(--border); }
+  .lightbox-close { position: fixed; top: 1.5rem; right: 1.5rem; font-family: var(--mono); font-size: 20px; color: var(--muted); cursor: pointer; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 4px 12px; line-height: 1.6; }
+  .lightbox-close:hover { color: var(--text); }
+  .zoom-hint { font-family: var(--mono); font-size: 10px; color: var(--muted); padding: 4px 14px 8px; letter-spacing: 0.04em; }
 
   /* CTA */
   #cta { text-align: center; padding: 5rem 0 6rem; }
@@ -343,16 +355,18 @@
   <!-- Terminal -->
   <div class="ss-group">
     <p class="ss-group-label">TERMINAL OUTPUT</p>
-    <div class="ss-grid-2">
-      <div class="ss-card">
-        <img src="load-generator_terminal_screen.png" alt="Terminal showing load generator dispatching math operations and receiving results from worker_a and worker_b">
+    <div class="ss-grid-1">
+      <div class="ss-card ss-terminal">
+        <img src="load-generator_terminal_screen.png" alt="Terminal showing load generator dispatching math operations and receiving results from worker_a and worker_b" onclick="openLightbox(this)">
+        <p class="zoom-hint">↗ click to enlarge</p>
         <div class="ss-caption">
           <p class="ss-caption-title">load-generator.py</p>
           <p class="ss-caption-desc">Dispatches add/subtract/multiply/divide/sqrt/power/factorial · results alternate between worker_a &amp; worker_b · sub-ms latency</p>
         </div>
       </div>
-      <div class="ss-card">
-        <img src="DLQ-monitor.png" alt="DLQ monitor terminal showing queue status with enq and deq counts climbing in sync confirming zero dead-letter messages">
+      <div class="ss-card ss-terminal">
+        <img src="DLQ-monitor.png" alt="DLQ monitor terminal showing queue status with enq and deq counts climbing in sync confirming zero dead-letter messages" onclick="openLightbox(this)">
+        <p class="zoom-hint">↗ click to enlarge</p>
         <div class="ss-caption">
           <p class="ss-caption-title">dlq-monitor.py — Queue health</p>
           <p class="ss-caption-desc">enq = deq at every poll interval · size=0 · 0 dead-letter messages · consumers=1 on both queues</p>
@@ -365,8 +379,9 @@
   <div class="ss-group">
     <p class="ss-group-label">PERSISTENCE — POSTGRESQL</p>
     <div class="ss-grid-1">
-      <div class="ss-card">
-        <img src="postgres-result.png" alt="PostgreSQL terminal showing SELECT COUNT(*) FROM results returning 3070 rows">
+      <div class="ss-card ss-terminal">
+        <img src="postgres-result.png" alt="PostgreSQL terminal showing SELECT COUNT(*) FROM results returning 3070 rows" onclick="openLightbox(this)">
+        <p class="zoom-hint">↗ click to enlarge</p>
         <div class="ss-caption">
           <p class="ss-caption-title">PostgreSQL — Result count verification</p>
           <p class="ss-caption-desc"><code>SELECT COUNT(*) FROM results;</code> → 3,070 rows · confirms full end-to-end delivery with zero data loss</p>
@@ -376,6 +391,12 @@
   </div>
 
 </section>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <span class="lightbox-close" onclick="closeLightbox()">✕ close</span>
+  <img id="lightbox-img" src="" alt="">
+</div>
 
 <!-- CTA -->
 <section id="cta">
@@ -426,6 +447,18 @@ lines.forEach(({ text, delay, type }) => {
   }, delay);
 });
 setTimeout(() => { cursor.style.display = 'none'; }, 6500);
+
+function openLightbox(img) {
+  document.getElementById('lightbox-img').src = img.src;
+  document.getElementById('lightbox-img').alt = img.alt;
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeLightbox(); });
 </script>
 </body>
 </html>
