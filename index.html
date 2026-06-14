@@ -36,7 +36,7 @@
   .nav-links a:hover { color: var(--text); }
 
   /* Layout */
-  .container { max-width: 1400px; margin: 0 auto; padding: 0 3rem; }
+  .container { max-width: 960px; margin: 0 auto; padding: 0 2rem; }
   section { padding: 5rem 0; border-top: 1px solid var(--border); }
   #hero { padding: 6rem 0 5rem; border-top: none; }
 
@@ -79,8 +79,8 @@
   .stat-label { font-size: 12px; color: var(--muted); font-family: var(--mono); letter-spacing: 0.04em; }
 
   /* Architecture */
-  .arch-wrapper { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 2rem; margin-top: 1.5rem; overflow: auto; }
-  .arch-wrapper object, .arch-wrapper img { width: 100%; height: auto; display: block; }
+  .arch-wrapper { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-top: 1.5rem; overflow: auto; }
+  .arch-wrapper object, .arch-wrapper img { width: 100%; max-width: 100%; height: auto; display: block; }
 
   /* Stack */
   .stack-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
@@ -213,12 +213,11 @@
     <object
       data="https://raw.githubusercontent.com/KenH-Dev/ActiveMQ_EMQX_Distributed-math-system_Project/main/final_clean_architecture.svg"
       type="image/svg+xml"
-      width="100%"
-      aria-label="System architecture diagram"
-      style="min-height:320px;">
+      style="width:100%; max-width:100%; height:auto; display:block;"
+      aria-label="System architecture diagram">
       <img
         src="https://raw.githubusercontent.com/KenH-Dev/ActiveMQ_EMQX_Distributed-math-system_Project/main/final_clean_architecture.svg"
-        alt="System architecture diagram" style="width:100%;">
+        alt="System architecture diagram" style="width:100%; height:auto;">
     </object>
   </div>
 </section>
