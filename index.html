@@ -111,8 +111,8 @@
   .ss-caption-title { font-family: var(--mono); font-size: 12px; color: var(--text); font-weight: 700; }
   .ss-caption-desc { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-top: 2px; }
 
-  /* Terminal screenshots — larger and side-scrollable */
-  .ss-terminal img { min-height: 420px; object-fit: cover; object-position: top left; }
+  /* Terminal screenshots — show full image, no cropping */
+  .ss-terminal img { width: 100%; height: auto; }
 
   /* Lightbox */
   .lightbox { display: none; position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,0.92); align-items: center; justify-content: center; padding: 2rem; }
@@ -322,7 +322,8 @@
     <p class="ss-group-label">OBSERVABILITY — ELASTIC / KIBANA</p>
     <div class="ss-grid-1">
       <div class="ss-card">
-        <img src="Elastic1.png" alt="Kibana Math System Dashboard showing avg duration per operation, 99.52% success rate, and duration timeline">
+        <img src="Elastic1.png" alt="Kibana Math System Dashboard showing avg duration per operation, 99.52% success rate, and duration timeline" onclick="openLightbox(this)">
+        <p class="zoom-hint">↗ click to enlarge</p>
         <div class="ss-caption">
           <p class="ss-caption-title">Kibana — Math System Dashboard</p>
           <p class="ss-caption-desc">2,306 indexed documents · 99.52% success rate · avg duration 0.001–0.004ms per operation · 4-hour timeline</p>
@@ -336,14 +337,16 @@
     <p class="ss-group-label">MESSAGE BROKERS</p>
     <div class="ss-grid-2">
       <div class="ss-card">
-        <img src="ActiveMQ1.png" alt="ActiveMQ web console showing math.requests and math.results queues with 1213 messages enqueued and dequeued">
+        <img src="ActiveMQ1.png" alt="ActiveMQ web console showing math.requests and math.results queues with 1213 messages enqueued and dequeued" onclick="openLightbox(this)">
+        <p class="zoom-hint">↗ click to enlarge</p>
         <div class="ss-caption">
           <p class="ss-caption-title">ActiveMQ — Queue console</p>
           <p class="ss-caption-desc">math.requests &amp; math.results · 1,213 enqueued · 1,213 dequeued · 0 pending · 1 consumer each</p>
         </div>
       </div>
       <div class="ss-card">
-        <img src="EMQX1.png" alt="EMQX dashboard showing 6 connected MQTT clients including mqtt-amq-bridge, math-worker-a, math-worker-b">
+        <img src="EMQX1.png" alt="EMQX dashboard showing 6 connected MQTT clients including mqtt-amq-bridge, math-worker-a, math-worker-b" onclick="openLightbox(this)">
+        <p class="zoom-hint">↗ click to enlarge</p>
         <div class="ss-caption">
           <p class="ss-caption-title">EMQX — Connected clients</p>
           <p class="ss-caption-desc">6 clients · mqtt-amq-bridge · math-worker-a/b · kafka-producer · dispatcher-mqtt · db-writer</p>
