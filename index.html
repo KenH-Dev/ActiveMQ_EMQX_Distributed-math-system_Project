@@ -208,16 +208,27 @@
 <section id="architecture">
   <p class="section-label">ARCHITECTURE</p>
   <h2>System design</h2>
-  <p>Full message flow from load generator through dual brokers to worker nodes, PostgreSQL persistence, and ELK observability.</p>
+  <p>Two views of the system — the overall conceptual diagram showing all components and message flow, and the deployment architecture showing how services are distributed across the 5 VMs.</p>
+  <p style="font-family:var(--mono); font-size:11px; color:var(--green); letter-spacing:0.06em; margin-bottom:0.75rem;">OVERALL SYSTEM DIAGRAM</p>
+  <div class="ss-card" style="margin-bottom:1.5rem;">
+    <img src="Overal_System_Diagram.png" alt="Overall system architecture showing all 5 servers, message flow, and components" onclick="openLightbox(this)" style="width:100%; display:block;">
+    <p class="zoom-hint">↗ click to enlarge</p>
+    <div class="ss-caption">
+      <p class="ss-caption-title">Full system overview — 5 servers, dual brokers, ELK observability</p>
+      <p class="ss-caption-desc">S1 client · S2 ActiveMQ · S3 coordinator (EMQX, Kafka, PostgreSQL, ELK) · S4 Worker A · S5 Worker B</p>
+    </div>
+  </div>
+
+  <p style="font-family:var(--mono); font-size:11px; color:var(--green); letter-spacing:0.06em; margin-bottom:0.75rem;">DEPLOYMENT ARCHITECTURE</p>
   <div class="arch-wrapper">
     <object
       data="https://raw.githubusercontent.com/KenH-Dev/ActiveMQ_EMQX_Distributed-math-system_Project/main/final_clean_architecture.svg"
       type="image/svg+xml"
       style="width:100%; max-width:100%; height:auto; display:block;"
-      aria-label="System architecture diagram">
+      aria-label="Deployment architecture diagram">
       <img
         src="https://raw.githubusercontent.com/KenH-Dev/ActiveMQ_EMQX_Distributed-math-system_Project/main/final_clean_architecture.svg"
-        alt="System architecture diagram" style="width:100%; height:auto;">
+        alt="Deployment architecture diagram" style="width:100%; height:auto;">
     </object>
   </div>
 </section>
