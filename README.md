@@ -16,6 +16,8 @@ Every service is **production-hardened** with auto-reconnect logic, meaning the 
 
 ## Architecture
 
+![Overall System Diagram](Overal_System_Diagram.png)
+
 | Server | Role | Key Services |
 |--------|------|-------------|
 | **S1** (laptop) | Client | `client.py`, `load-generator.py`, `dlq_monitor.py` |
